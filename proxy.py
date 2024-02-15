@@ -9,7 +9,8 @@ cache: dict[tuple[bytes, bool], api.CalculatorHeader] = {}
 INDEFINITE = api.CalculatorHeader.MAX_CACHE_CONTROL
 
 
-def process_request(request: api.CalculatorHeader, server_address: tuple[str, int]) -> tuple[api.CalculatorHeader, int, int, bool, bool, bool]:
+def process_request(request: api.CalculatorHeader, server_address: tuple[str, int]) -> tuple[
+    api.CalculatorHeader, int, int, bool, bool, bool]:
     '''
     Function which processes the client request if specified we cache the result
     Returns the response, the time remaining before the server deems the response stale, the time remaining before the client deems the response stale, whether the response returned was from the cache, whether the response was stale, and whether we cached the response
@@ -92,7 +93,7 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
         while True:
             try:
                 # Establish connection with client.
-                
+
                 client_socket, client_address = proxy_socket.accept()
 
                 # Create a new thread to handle the client request
@@ -108,7 +109,8 @@ def proxy(proxy_address: tuple[str, int], server_adress: tuple[str, int]) -> Non
             thread.join()
 
 
-def client_handler(client_socket: socket.socket, client_address: tuple[str, int], server_address: tuple[str, int]) -> None:
+def client_handler(client_socket: socket.socket, client_address: tuple[str, int],
+                   server_address: tuple[str, int]) -> None:
     '''
     Function which handles client requests
     '''
@@ -117,13 +119,13 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
         print(f"{client_prefix} Connected established")
         while True:
             # Receive data from the client
-            
+
             data = client_socket.recv(api.BUFFER_SIZE)
-            
+
             if not data:
                 break
             try:
-                client_socket.send(response)
+                #   client_socket.send(response)
                 try:
                     request = api.CalculatorHeader.unpack(data)
                 except Exception as e:
@@ -154,7 +156,10 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                 # Send the response back to the client
                 # * Fill in start (4)
                 # * Fill in end (4)
-                
+                client_socket.sendall(response)
+                client_socket.close()
+                break
+
             except Exception as e:
                 print(f"Unexpected server error: {e}")
                 client_socket.sendall(api.CalculatorHeader.from_error(api.CalculatorServerError(

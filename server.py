@@ -89,9 +89,7 @@ def server(host: str, port: int) -> None:
         server_socket.bind((host, port))
         server_socket.listen()
 
-        # Prepare the server socket
-        # * Fill in start (1)
-        # * Fill in end (1)
+
 
         threads = []
         print(f"Listening on {host}:{port}")
@@ -144,7 +142,9 @@ def client_handler(client_socket: socket.socket, client_address: tuple[str, int]
                 print(
                     f"{client_prefix} Sending response of length {len(response)} bytes")
 
-                client_socket.send(response)
+                client_socket.sendall(response)
+                client_socket.close()
+                break
 
             except Exception as e:
                 print(f"Unexpected server error: {e}")
